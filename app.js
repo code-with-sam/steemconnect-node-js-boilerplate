@@ -9,6 +9,7 @@ let session = require('express-session');
 let index = require('./routes/index');
 let user = require('./routes/user');
 let auth = require('./routes/auth');
+let feed = require('./routes/feed');
 
 let config = require('./config')
 
@@ -35,6 +36,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
 app.use('/user', user);
 app.use('/auth', auth);
+app.use('/logout', auth);
+app.use('/feed', feed);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
