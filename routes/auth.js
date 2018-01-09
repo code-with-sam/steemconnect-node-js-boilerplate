@@ -10,9 +10,9 @@ router.get('/', (req, res, next) => {
         res.redirect(uri);
     } else {
         steem.setAccessToken(req.query.access_token);
-        steem.me(function(err, response) {
-          console.log(response)
-          res.redirect("/")
+        steem.me((err, steemResponse) => {
+          req.session.steemconnect = steemResponse.account;
+          res.redirect('/user')
         });
     }
 });

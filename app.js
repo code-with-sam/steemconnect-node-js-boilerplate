@@ -4,12 +4,21 @@ let favicon = require('serve-favicon');
 let logger = require('morgan');
 let cookieParser = require('cookie-parser');
 let bodyParser = require('body-parser');
+let session = require('express-session');
 
 let index = require('./routes/index');
-let users = require('./routes/users');
+let user = require('./routes/user');
 let auth = require('./routes/auth');
 
+let config = require('./config')
+
 let app = express();
+
+app.use(session({
+    secret: config.session.secret,
+    saveUninitialized: true,
+    resave: false
+}));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,7 +33,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/users', users);
+app.use('/user', user);
 app.use('/auth', auth);
 
 // catch 404 and forward to error handler
