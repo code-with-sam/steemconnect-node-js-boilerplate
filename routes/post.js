@@ -20,8 +20,9 @@ router.post('/create-post', (req, res) => {
     res.redirect('/auth')
   } else {
     console.log(req.body)
-    console.log(req.session.steemconnect.name)
-
+    api.vote(voter, author, permlink, weight, function (err, res) {
+      console.log(err, res)
+    });
     let author = req.session.steemconnect.name
     let permlink = util.urlString()
     var tags = req.body.tags.split(',').map(item => item.trim());
@@ -34,9 +35,9 @@ router.post('/create-post', (req, res) => {
         console.log(err, steemResponse)
         let msg;
         if (err) {
-            let msg = `Post Failed ${err}`
+          let msg = `Post Failed ${err}`
         } else {
-            let msg = 'Posted To the Steem Network'
+          let msg = 'Posted To the Steem Network'
         }
 
         res.render('post', {
@@ -47,5 +48,33 @@ router.post('/create-post', (req, res) => {
 
   }
 });
+
+router.post('/vote', (req, res) => {
+  if (!req.session.steemconnect) {
+    res.redirect('/auth')
+  } else {
+      let postId = req.body.postId
+      let voter = req.session.steemconnect.name
+      let author = req.body.author
+      let permlink = req.body.permlink
+      let weight = 10000
+
+      steem.vote(voter, author, permlink, weight, function (err, steemResponse) {
+        if (err) {
+              res.json({
+                error: error.error_description
+              })
+        } else {
+          res.json({
+            name: req.session.steemconnect.name,
+            msg: 'voted!',
+            id: postId
+          })
+        }
+
+      });
+
+  }
+})
 
 module.exports = router;
