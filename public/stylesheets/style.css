@@ -1,3 +1,6 @@
+* {
+  box-sizing: border-box;
+}
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
@@ -14,4 +17,29 @@ main {
 }
 img {
   max-width: 100%;
+}
+
+form {
+
+}
+
+input, label, textarea, button {
+  margin: 15px 0;
+  width: 100%;
+  border-radius: 3px;
+  padding: 5px;
+}
+
+input, textarea {
+  border: solid 1px #7b7b7b;
+}
+input:focus, textarea:focus {
+  outline: 0;
+}
+
+textarea {
+  min-height: 400px;
+}
+button {
+  cursor: pointer;
 }

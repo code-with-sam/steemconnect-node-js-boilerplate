@@ -4,7 +4,7 @@ let router = express.Router();
 
 /* GET auth listing. */
 router.get('/', (req, res, next) => {
-    if (!req.query.access_token) {
+    if (!req.query.access_token ) {
         let uri = steem.getLoginURL();
         console.log(uri);
         res.redirect(uri);

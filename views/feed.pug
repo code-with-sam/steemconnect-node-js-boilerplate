@@ -1,11 +1,7 @@
 extends layout
 
 block content
-  nav
-    a(href="/feed") Feed
-    a(href="/user") Profile
-    a(href="/post") Create Post
-    a(href="/auth/logout") Logout
+  include partials/nav
 
   main.feed
     h1 Feed - /Trending

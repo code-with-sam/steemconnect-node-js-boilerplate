@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  include partials/nav
+
+  main
+    h1 Create Post
+    form(action="/post/create-post/" method="post")
+      label Title
+      input(type="text" name="title")
+      label Blog Post
+      textarea(name="post")
+      label Tags
+      input(type="text" name="tags")
+      button(type="submit"  ) Submit
+      p Posting as #{name}
+      p #{msg}
