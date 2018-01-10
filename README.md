@@ -1,4 +1,14 @@
 # boilerplate
+This project is a boilerplate for rapid development ontop of the steem network.
+
+## What does it include 
+This boilerplate includes.
+- Authenticate with SteemConnect/Logout
+- Get User Profile
+- Get Feed
+- Create Top Level Post
+- Upvote Top Level Post
+
 
 ## setup & install
 - install node.js & NPM - [https://nodejs.org/en/](https://nodejs.org/en/)
@@ -10,3 +20,8 @@
 - npm start // run the project on default port 3000
 - navigate to localhost:3000 in your browser
 - click on the blue 'login with steemconnect to authenticate your app'
+
+![LOGIN](https://i.imgsafe.org/66/6654933f96.png)
+![USER PROFILE](https://i.imgsafe.org/66/6654936f6a.png)
+![FEED](https://i.imgsafe.org/66/665480732c.png)
+![CREATE POST](https://i.imgsafe.org/66/66547d678e.png)
