@@ -20,18 +20,17 @@ router.post('/create-post', util.isAuthenticated, (req, res) => {
     let body = req.body.post
 
     steem.comment('', primaryTag, author, permlink, title, body, '', (err, steemResponse) => {
-        console.log(err, steemResponse)
-        let msg;
         if (err) {
-          let msg = `Post Failed ${err}`
+          res.render('post', {
+            name: req.session.steemconnect.name,
+            msg: 'Error'
+          })
         } else {
-          let msg = 'Posted To the Steem Network'
+          res.render('post', {
+            name: req.session.steemconnect.name,
+            msg: 'Posted To Steem Network'
+          })
         }
-
-        res.render('post', {
-          name: req.session.steemconnect.name,
-          msg: msg
-        })
     });
 });
 
