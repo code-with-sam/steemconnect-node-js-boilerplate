@@ -15,12 +15,9 @@ a {
 main {
   max-width: 600px;
 }
+
 img {
   max-width: 100%;
-}
-
-form {
-
 }
 
 input, label, textarea, button {
@@ -33,6 +30,7 @@ input, label, textarea, button {
 input, textarea {
   border: solid 1px #7b7b7b;
 }
+
 input:focus, textarea:focus {
   outline: 0;
 }
@@ -40,6 +38,12 @@ input:focus, textarea:focus {
 textarea {
   min-height: 400px;
 }
-button {
+
+button, input[type="submit"] {
   cursor: pointer;
+}
+
+.vote {
+  width: 100px;
+  margin: 0 0 40px;
 }
