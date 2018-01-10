@@ -50,8 +50,13 @@ if ($('main').hasClass('feed') ) {
         dataType: 'json',
         data:  $(e.currentTarget).parent().serialize()
       }, (response) => {
-        $(`*[data-post-id="${response.id}"]`).children().last().after()
+        if (response.error) {
+          $(`*[data-post-id="${response.id}"]`).children().last().after()
+          .append(`<span>${response.error.error_description}</span>`)
+        } else {
+          $(`*[data-post-id="${response.id}"]`).children().last().after()
           .append('<span>  Voted!</span>')
+        }
       })
 
     })

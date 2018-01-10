@@ -3,26 +3,14 @@ let util = require('../modules/util');
 let steem = require('../modules/steemconnect')
 let router = express.Router();
 
-/* GET users listing. */
-router.get('/', (req, res, next) => {
-    if (!req.session.steemconnect) {
-      res.redirect('/auth')
-    } else {
-      console.log(req.session.steemconnect)
-        res.render('post', {
-          name: req.session.steemconnect.name
-        });
-    }
+
+router.get('/', util.isAuthenticated, (req, res, next) => {
+    res.render('post', {
+      name: req.session.steemconnect.name
+    });
 });
 
-router.post('/create-post', (req, res) => {
-  if (!req.session.steemconnect) {
-    res.redirect('/auth')
-  } else {
-    console.log(req.body)
-    api.vote(voter, author, permlink, weight, function (err, res) {
-      console.log(err, res)
-    });
+router.post('/create-post', util.isAuthenticated, (req, res) => {
     let author = req.session.steemconnect.name
     let permlink = util.urlString()
     var tags = req.body.tags.split(',').map(item => item.trim());
@@ -45,36 +33,22 @@ router.post('/create-post', (req, res) => {
           msg: msg
         })
     });
-
-  }
 });
 
-router.post('/vote', (req, res) => {
-  if (!req.session.steemconnect) {
-    res.redirect('/auth')
-  } else {
-      let postId = req.body.postId
-      let voter = req.session.steemconnect.name
-      let author = req.body.author
-      let permlink = req.body.permlink
-      let weight = 10000
+router.post('/vote', util.isAuthenticated, (req, res) => {
+    let postId = req.body.postId
+    let voter = req.session.steemconnect.name
+    let author = req.body.author
+    let permlink = req.body.permlink
+    let weight = 10000
 
-      steem.vote(voter, author, permlink, weight, function (err, steemResponse) {
-        if (err) {
-              res.json({
-                error: error.error_description
-              })
-        } else {
-          res.json({
-            name: req.session.steemconnect.name,
-            msg: 'voted!',
-            id: postId
-          })
-        }
-
-      });
-
-  }
+    steem.vote(voter, author, permlink, weight, function (err, steemResponse) {
+      if (err) {
+          res.json({ error: err.error_description })
+      } else {
+          res.json({ id: postId })
+      }
+    });
 })
 
 module.exports = router;
