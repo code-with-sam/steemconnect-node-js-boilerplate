@@ -10,4 +10,12 @@ router.get('/', (req, res, next) =>  {
   }
 });
 
+router.get('/@:username?', (req, res, next) => {
+      let username = req.params.username
+      console.log(username)
+      res.render('profile', {
+        name: username
+      });
+});
+
 module.exports = router;

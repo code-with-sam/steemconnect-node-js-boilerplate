@@ -1,0 +1,8 @@
+extends layout
+
+block content
+  include partials/nav
+
+  main.profile(data-username=`${name}`)
+    h1 Profile
+    h2 #{name}
