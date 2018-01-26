@@ -1,6 +1,7 @@
 
 // EXAMPLE - FEED PAGE
 if ($('main').hasClass('feed') ) {
+    let postInsert = '.feed-insert'
     steem.api.setOptions({ url: 'wss://rpc.buildteam.io' });
     steem.api.getState('/trending/', (err, result) => {
 
@@ -10,13 +11,18 @@ if ($('main').hasClass('feed') ) {
 
         var converter = new showdown.Converter()
         var html = converter.makeHtml(result.content[post].body)
+        var placeholder = document.createElement('div');
+        placeholder.innerHTML = html;
+        var image = placeholder.querySelector('img');
+        var plainText = placeholder.textContent || placeholder.innerText || "";
 
         resultsArray.push({
             id: result.content[post].id,
             title: result.content[post].title,
             author: result.content[post].author,
-            body: html,
-            permlink: result.content[post].permlink
+            body: plainText,
+            permlink: result.content[post].permlink,
+            image: image ? image.getAttribute('src') : ''
         })
       }
 
@@ -25,22 +31,30 @@ if ($('main').hasClass('feed') ) {
       });
 
       resultsArray.forEach( (post, i, arr) => {
-
         let template = `
-        <div data-post-id="${post.id}">
-        <h3><a href="">${post.title}</a> - ${post.author}</h3>
-        <p>${ (post.body).substring(0, 250) }...</p>
-        <form method="post">
-        <input type="hidden" name="postId" value="${post.id}">
-        <input type="hidden" name="author" value="${post.author}">
-        <input type="hidden" name="permlink" value="${post.permlink}">
-        <input type="submit" class="vote" value="Vote">
-        </form>
-        </div>`
-        $('main').append(template)
+            <div class="col-md-4" data-post-id="${post.id}">
+              <div class="card mb-4 box-shadow">
+                <img class="card-img-top" data-src="${post.image}" alt="Thumbnail [100%x225]" style="height: 225px; width: 100%; display: block;" src="${post.image}" data-holder-rendered="true">
+                <div class="card-body">
+                  <h5 class="card-title">${post.title}</h5>
+                  <p class="card-text">${ (post.body).substring(0, 150) }..</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group">
+                      <form method="post">
+                      <input type="hidden" name="postId" value="${post.id}">
+                      <input type="hidden" name="author" value="${post.author}">
+                      <input type="hidden" name="permlink" value="${post.permlink}">
+                      <button type="button" class="btn btn-sm btn-outline-secondary vote">Vote</button>
+                      </form>
+                      <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        `
+        $(postInsert).append(template)
       })
-
-
     });
 
     $('main').on('click', '.vote',(e) => {

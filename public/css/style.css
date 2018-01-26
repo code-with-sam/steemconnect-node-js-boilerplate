@@ -13,7 +13,7 @@ a {
 }
 
 main {
-  max-width: 600px;
+  /*max-width: 600px;*/
 }
 
 img {
@@ -44,6 +44,6 @@ button, input[type="submit"] {
 }
 
 .vote {
-  width: 100px;
-  margin: 0 0 40px;
+  /*width: 100px;
+  margin: 0 0 40px;*/
 }
