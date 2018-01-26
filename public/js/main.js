@@ -2,8 +2,10 @@
 // EXAMPLE - FEED PAGE
 if ($('main').hasClass('feed') ) {
     let postInsert = '.feed-insert'
+    let feedType = $('main.feed').data('feed-type')
+    console.log(feedType)
     steem.api.setOptions({ url: 'wss://rpc.buildteam.io' });
-    steem.api.getState('/trending/', (err, result) => {
+    steem.api.getState(`/${feedType}/`, (err, result) => {
 
       let resultsArray = [];
 
