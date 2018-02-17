@@ -91,7 +91,10 @@ function genImageInHTML(markdown){
     }
 }
 
-// EXAMPLE - FEED PAGE
+function getPost(url) {
+  console.log(url)
+}
+
 if ($('main').hasClass('feed') ) {
 
     let feedType = $('main.feed').data('feed-type')
@@ -103,6 +106,10 @@ if ($('main').hasClass('feed') ) {
     }
 }
 
+if ($('main').hasClass('single')) {
+  let data = $('main').data()
+  getPost(`/@${data.username}/${data.permlink}`)
+}
 
 
 if ($('main').hasClass('profile') ) {

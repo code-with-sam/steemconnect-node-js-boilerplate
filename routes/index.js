@@ -18,4 +18,14 @@ router.get('/@:username?', (req, res, next) => {
       });
 });
 
+router.get('/@:username/:permlink', (req, res, next) => {
+      let username = req.params.username
+      let permlink = req.params.permlink
+      console.log(username)
+      res.render('single', {
+        username: username,
+        permlink: permlink
+      });
+});
+
 module.exports = router;
