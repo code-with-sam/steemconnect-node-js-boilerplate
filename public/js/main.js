@@ -1,87 +1,113 @@
+let allUsers = []
+let allContent = []
+let converter = new showdown.Converter({ tables: true })
+
+function getTrending(query, initial){
+  steem.api.getDiscussionsByTrending(query, (err, result) => {
+    if (err === null) {
+      displayContent(result,initial)
+      getaccounts(result.map(post => post.author))
+    } else {
+      console.log(err);
+    }
+  });
+}
+
+function getLatest(query, initial){
+
+  steem.api.getDiscussionsByCreated(query, (err, result) => {
+    if (err === null) {
+      displayContent(result, initial)
+      getaccounts(result.map(post => post.author))
+    } else {
+      console.log(err);
+    }
+  });
+}
+
+function getMoreContent(filter, tag){
+  let lastItem = allContent[allContent.length - 1]
+  let query = {
+      'tag':
+      tag,
+      'limit': 24,
+      start_author: lastItem.author,
+      start_permlink: lastItem.permlink }
+
+      if(filter === 'trending'){
+        getTrending(query, false)
+      } else {
+        getLatest(query, false)
+      }
+}
+
+function displayContent(result, initial){
+  if (!initial) result.shift()
+  for (let i = 0; i < result.length ; i++) {
+      let post = result[i];
+      allContent.push(post)
+
+      var urlRegex = /(https?:\/\/[^\s]+)/g;
+      post.body = post.body.replace(urlRegex, (url) => {
+        let last = url.slice(-3)
+        if ( last === 'jpg' || last === 'png' || last === 'jpe' || last === 'gif' )  {
+          return '<img src="' + url + '">';
+        } else { return url }
+      })
+
+      if( typeof JSON.parse(post.json_metadata).image === 'undefined' ){
+        image = genImageInHTML(post.body)
+      } else {
+        image = JSON.parse(post.json_metadata).image[0]
+      }
+
+      let itemTemplate = `
+        <div class="item " data-url="${post.url}" data-permlink="${ post.permlink }">
+          <img class="item__image " src="https://steemitimages.com/480x768/${image}" onerror="">
+          <div class="item__author">
+            <h1>${post.title}</h1>
+            <span>@${post.author}</span>
+          </div>
+        </div>
+        `
+        $('.feed-insert').append(itemTemplate)
+  }
+}
+
+function getaccounts(usernames){
+  steem.api.getAccounts(usernames, (err, result) => {
+    allUsers = allUsers.concat(result)
+  })
+}
+
+function genImageInHTML(markdown){
+    let placeholder = document.createElement('div');
+    placeholder.innerHTML = converter.makeHtml(markdown)
+    let image = placeholder.querySelector('img') ;
+    if (image) {
+      return image.src
+    } else {
+      return false
+    }
+}
 
 // EXAMPLE - FEED PAGE
 if ($('main').hasClass('feed') ) {
-    let postInsert = '.feed-insert'
+
     let feedType = $('main.feed').data('feed-type')
-    console.log(feedType)
-    steem.api.setOptions({ url: 'wss://rpc.buildteam.io' });
-    steem.api.getState(`/${feedType}/`, (err, result) => {
 
-      let resultsArray = [];
-
-      for ( post in result.content ){
-
-        var converter = new showdown.Converter()
-        var html = converter.makeHtml(result.content[post].body)
-        var placeholder = document.createElement('div');
-        placeholder.innerHTML = html;
-        var image = placeholder.querySelector('img');
-        var plainText = placeholder.textContent || placeholder.innerText || "";
-
-        resultsArray.push({
-            id: result.content[post].id,
-            title: result.content[post].title,
-            author: result.content[post].author,
-            body: plainText,
-            permlink: result.content[post].permlink,
-            image: image ? image.getAttribute('src') : ''
-        })
-      }
-
-      resultsArray = resultsArray.sort((a,b) => {
-          return b.id - a.id
-      });
-
-      resultsArray.forEach( (post, i, arr) => {
-        let template = `
-            <div class="col-md-4" data-post-id="${post.id}">
-              <div class="card mb-4 box-shadow">
-                <img class="card-img-top" data-src="${post.image}" alt="Thumbnail [100%x225]" style="height: 225px; width: 100%; display: block;" src="${post.image}" data-holder-rendered="true">
-                <div class="card-body">
-                  <h5 class="card-title">${post.title}</h5>
-                  <p class="card-text">${ (post.body).substring(0, 150) }..</p>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="btn-group">
-                      <form method="post">
-                      <input type="hidden" name="postId" value="${post.id}">
-                      <input type="hidden" name="author" value="${post.author}">
-                      <input type="hidden" name="permlink" value="${post.permlink}">
-                      <button type="button" class="btn btn-sm btn-outline-secondary vote">Vote</button>
-                      </form>
-                      <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-        `
-        $(postInsert).append(template)
-      })
-    });
-
-    $('main').on('click', '.vote',(e) => {
-      e.preventDefault()
-      $.post({
-        url: '/post/vote',
-        dataType: 'json',
-        data:  $(e.currentTarget).parent().serialize()
-      }, (response) => {
-        if (response.error) {
-          $(`*[data-post-id="${response.id}"]`).children().last().after()
-          .append(`<span>${response.error.error_description}</span>`)
-        } else {
-          $(`*[data-post-id="${response.id}"]`).children().last().after()
-          .append('<span>  Voted!</span>')
-        }
-      })
-
-    })
+    if(feedType === 'trending'){
+      getTrending({'limit': 20 })
+    } else {
+      getLatest({'limit': 20 })
+    }
 }
+
+
 
 if ($('main').hasClass('profile') ) {
   let username = $('.profile').data('username')
 
-  steem.api.setOptions({ url: 'wss://rpc.buildteam.io' });
 
   let totalVestingShares, totalVestingFundSteem;
 
@@ -128,7 +154,7 @@ if ($('main').hasClass('profile') ) {
     }
 
 
- steem.api.getFollowCount(user.name, function(err, result){
+  steem.api.getFollowCount(user.name, function(err, result){
     data.followerCount = result.follower_count
     data.followingCount = result.following_count
   })

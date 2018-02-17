@@ -12,11 +12,16 @@ a {
 }
 
 main {
-  /*max-width: 600px;*/
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 img {
   max-width: 100%;
+}
+.item {
+  border: solid 1px #ccc;
+  margin: 30px 0;
 }
 
 input, label, textarea, button {
