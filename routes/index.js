@@ -18,11 +18,12 @@ router.get('/@:username?', (req, res, next) => {
       });
 });
 
-router.get('/@:username/:permlink', (req, res, next) => {
+router.get('/:category/@:username/:permlink', (req, res, next) => {
+      let category = req.params.category
       let username = req.params.username
       let permlink = req.params.permlink
-      console.log(username)
       res.render('single', {
+        category: category,
         username: username,
         permlink: permlink
       });

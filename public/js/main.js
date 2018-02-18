@@ -62,6 +62,7 @@ function displayContent(result, initial){
       }
 
       let itemTemplate = `
+      <a href="${post.url}">
         <div class="item " data-url="${post.url}" data-permlink="${ post.permlink }">
           <img class="item__image " src="https://steemitimages.com/480x768/${image}" onerror="">
           <div class="item__author">
@@ -69,6 +70,7 @@ function displayContent(result, initial){
             <span>@${post.author}</span>
           </div>
         </div>
+        </a>
         `
         $('.feed-insert').append(itemTemplate)
   }
@@ -91,9 +93,88 @@ function genImageInHTML(markdown){
     }
 }
 
-function getPost(url) {
-  console.log(url)
+function getPostAndComments(url) {
+  steem.api.getState(url, (err, result) => {
+    let users = result.accounts;
+    let resultsArray = [];
+    for ( post in result.content ){
+
+      var html = result.content[post].body
+
+      resultsArray.push({
+        id: result.content[post].id,
+        title: result.content[post].root_title,
+        author: result.content[post].author,
+        body: html,
+        json: result.content[post].json_metadata,
+        permlink: result.content[post].permlink,
+        depth: result.content[post].depth,
+        root_comment: result.content[post].root_comment,
+        parent_permlink: result.content[post].parent_permlink,
+        created: result.content[post].created,
+        votes: result.content[post].net_votes,
+        voters: result.content[post].active_votes.map(vote => vote.voter),
+        value: Math.round( parseFloat(result.content[post].pending_payout_value.substring(0,5)) * 100) / 100
+      })
+    }
+
+    // Sort By Date/ID
+    resultsArray = resultsArray.sort((a,b) => {
+      return b.id - a.id
+    });
+
+    // Find Deepest Comment
+    let maxDepthComment = resultsArray.reduce((prev, current) => {
+      return (prev.depth > current.depth) ? prev : current
+    })
+
+    // Multi demention array by
+    let resultsByDepth = [];
+    for (var i = 0; i < maxDepthComment.depth + 1; i++) {
+      resultsByDepth.push(resultsArray.filter(elem => {
+        return elem.depth === i
+      }))
+    }
+    appendSinglePost(resultsByDepth[0][0], users)
+
+  })
 }
+
+function generateProfileImage(author){
+  let profileImage = 'img/default-user.jpg';
+
+  try {
+    if (author.json_metadata === '' || typeof author.json_metadata === 'undefined' ) {
+      author.json_metadata = { profile_image : false }
+    } else {
+      author.json_metadata = JSON.parse(author.json_metadata).profile
+    }
+
+    profileImage = author.json_metadata.profile_image ? 'https://steemitimages.com/128x128/' + author.json_metadata.profile_image : '';
+
+  } catch(err){
+    console.log(err)
+  }
+  return profileImage
+}
+
+function appendSinglePost(post, users){
+  let author = users[post.author]
+  console.log(author)
+  let html = converter.makeHtml(post.body)
+  let profileImage = generateProfileImage(author)
+
+  let tags = JSON.parse(post.json).tags.reduce( (all,tag) => all + `<span>${tag}</span>`, '')
+  let header = `
+    <img src="${profileImage}" class="author-img" width="35" height="35" src="">
+    <span class="overlay__author-username">@${post.author}</span>
+    ${tags}
+    <h1 class="title">${post.title}</h1>
+  `
+  $('main').append(header + html)
+}
+
+// ----------------------------------------------------
 
 if ($('main').hasClass('feed') ) {
 
@@ -108,7 +189,7 @@ if ($('main').hasClass('feed') ) {
 
 if ($('main').hasClass('single')) {
   let data = $('main').data()
-  getPost(`/@${data.username}/${data.permlink}`)
+  getPostAndComments(`/${data.category}/@${data.username}/${data.permlink}`)
 }
 
 
