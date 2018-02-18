@@ -39,6 +39,9 @@ img {
   padding-left: 45px;
 }
 
+.meta form {
+  display: inline-block;
+}
 input, label, textarea, button {
   /*margin: 15px 0;
   width: 100%;

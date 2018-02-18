@@ -83,11 +83,17 @@ function displayContent(result, initial){
       }
 
       let itemTemplate = `
-        <div class="item " data-url="${post.url}" data-permlink="${ post.permlink }">
+        <div class="item " data-post-id="${post.id}" data-url="${post.url}" data-permlink="${ post.permlink }">
           <img class="item__image " src="https://steemitimages.com/520x520/${image}" onerror="">
           <div class="item__author">
             <a href="${post.url}"><h2>${post.title}</h2></a>
             <a href="@${post.author}"><span>@${post.author}</span></a>
+            <form method="post">
+              <input type="hidden" name="postId" value="${post.id}">
+              <input type="hidden" name="author" value="${post.author}">
+              <input type="hidden" name="permlink" value="${post.permlink}">
+              <input type="submit" class="vote" value="Vote">
+            </form>
           </div>
         </div>
         `
@@ -191,7 +197,14 @@ function appendSinglePost(post, users){
     ${tags}
     <h1 class="title">${post.title}</h1>
   `
-  $('main').append(header + html)
+  let voteButton = `
+  <form method="post">
+    <input type="hidden" name="postId" value="${post.id}">
+    <input type="hidden" name="author" value="${post.author}">
+    <input type="hidden" name="permlink" value="${post.permlink}">
+    <input type="submit" class="vote" value="Vote">
+  </form>`
+  $('main').append(header + html + voteButton)
 }
 
 function appendComments(posts){
@@ -229,7 +242,12 @@ createCommentTemplate = (post) => {
         </h4>
         <p>${ html }</p>
         <div class="meta">
-          <span class="upvote">Upvote</span>
+          <form method="post">
+            <input type="hidden" name="postId" value="${post.id}">
+            <input type="hidden" name="author" value="${post.author}">
+            <input type="hidden" name="permlink" value="${post.permlink}">
+            <input type="submit" class="vote" value="Vote">
+          </form>
           <span class="sc-item__divider">|</span>
           <span class="sc-item__votecount">${post.votes} ${voteMessage} </span>
           <span class="sc-item__divider">|</span>
@@ -340,3 +358,21 @@ if ($('main').hasClass('profile') ) {
   })
   getBlog(username)
 }
+
+
+$('main').on('click', '.vote',(e) => {
+  let $voteButton = $(e.currentTarget)
+  e.preventDefault()
+  $.post({
+    url: '/post/vote',
+    dataType: 'json',
+    data:  $(e.currentTarget).parent().serialize()
+  }, (response) => {
+    if (response.error) {
+      $(`<span>${response.error.error_description}</span>`).insertAfter($voteButton)
+    } else {
+      $('<span>Voted!</span>').insertAfter($voteButton)
+    }
+  })
+
+})
