@@ -204,7 +204,13 @@ function appendSinglePost(post, users){
     <input type="hidden" name="permlink" value="${post.permlink}">
     <input type="submit" class="vote" value="Vote">
   </form>`
-  $('main').append(header + html + voteButton)
+  let commentBox = `
+  <div>
+    <textarea class="comment-message" rows="5"></textarea>
+    <span class="send-comment" data-parent="${post.author}" data-parent-permlink="${post.permlink}" data-parent-title="${post.title}">Post Comment</span>
+  </div>
+  `
+  $('main').append(header + html + voteButton + commentBox)
 }
 
 function appendComments(posts){
@@ -374,5 +380,22 @@ $('main').on('click', '.vote',(e) => {
       $('<span>Voted!</span>').insertAfter($voteButton)
     }
   })
+})
 
+$('main').on('click', '.send-comment', (e) => {
+  let $comment = $(e.currentTarget)
+
+  $.post({
+        url: `/post/comment`,
+        dataType: 'json',
+        data: {
+          parentAuthor: $comment.data('parent'),
+          parentPermlink: $comment.data('parent-permlink'),
+          message: $('.comment-message').val(),
+          parentTitle: $comment.data('parent-title')
+        }
+      }, (response) => {
+          console.log(response)
+          $(`<p>${response.msg}</p>`).insertAfter($comment)
+      })
 })

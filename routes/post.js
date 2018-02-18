@@ -50,4 +50,25 @@ router.post('/vote', util.isAuthenticated, (req, res) => {
     });
 })
 
+
+router.post('/comment',  util.isAuthenticated, (req, res) => {
+
+    let author = req.session.steemconnect.name
+    let permlink = req.body.parentPermlink + '-' + util.urlString()
+    let title = 'RE: ' + req.body.parentTitle
+    let body = req.body.message
+    let parentAuthor = req.body.parentAuthor
+    let parentPermlink = req.body.parentPermlink
+    steem.comment(parentAuthor, parentPermlink, author, permlink, title, body, '', (err, steemResponse) => {
+      if (err) {
+        res.json({ error: err.error_description })
+      } else {
+        res.json({
+          msg: 'Posted To Steem Network',
+          res: steemResponse
+        })
+      }
+    });
+});
+
 module.exports = router;
