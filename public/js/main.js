@@ -50,6 +50,18 @@ function getBlog(username){
       displayContent(result)
   })
 }
+
+function getUserFeed(username){
+  let query = {
+    tag: username,
+    limit: 20
+  }
+  steem.api.getDiscussionsByFeed(query, (err, result) => {
+    console.log(result)
+    displayContent(result)
+  });
+}
+
 function displayContent(result, initial){
   if (!initial) result.shift()
   for (let i = 0; i < result.length ; i++) {
@@ -71,15 +83,13 @@ function displayContent(result, initial){
       }
 
       let itemTemplate = `
-      <a href="${post.url}">
         <div class="item " data-url="${post.url}" data-permlink="${ post.permlink }">
-          <img class="item__image " src="https://steemitimages.com/480x768/${image}" onerror="">
+          <img class="item__image " src="https://steemitimages.com/520x520/${image}" onerror="">
           <div class="item__author">
-            <h1>${post.title}</h1>
-            <span>@${post.author}</span>
+            <a href="${post.url}"><h2>${post.title}</h2></a>
+            <a href="@${post.author}"><span>@${post.author}</span></a>
           </div>
         </div>
-        </a>
         `
         $('.feed-insert').append(itemTemplate)
   }
@@ -305,6 +315,10 @@ if ($('main').hasClass('single')) {
   getPostAndComments(`/${data.category}/@${data.username}/${data.permlink}`)
 }
 
+if ($('main').hasClass('dashboard')) {
+  let username = $('main').data('username')
+  getUserFeed(username)
+}
 
 if ($('main').hasClass('profile') ) {
   let username = $('.profile').data('username')

@@ -2,9 +2,12 @@ extends layout
 
 block content
   include partials/nav
-  
-  main
-    img(src=`${profileImage}` width="200px")
-    h1 Profile
-    h2 #{name}
+
+  aside
+    img(src=`${profileImage}` width="50px")
+    h3 #{name}
     p #{about}
+
+  main.dashboard(data-username=`${name}`)
+    section.container
+      .row.feed-insert

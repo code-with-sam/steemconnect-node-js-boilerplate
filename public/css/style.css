@@ -11,10 +11,11 @@ a {
   display: inline-block;*/
 }
 
-main {
-  max-width: 600px;
+main, aside {
+  max-width: 520px;
   margin: 0 auto;
 }
+
 
 img {
   max-width: 100%;
