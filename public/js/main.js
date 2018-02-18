@@ -41,6 +41,15 @@ function getMoreContent(filter, tag){
       }
 }
 
+function getBlog(username){
+  let query = {
+    tag: username,
+    limit: 10
+  }
+  steem.api.getDiscussionsByBlog(query, (err, result) => {
+      displayContent(result)
+  })
+}
 function displayContent(result, initial){
   if (!initial) result.shift()
   for (let i = 0; i < result.length ; i++) {
@@ -220,10 +229,68 @@ createCommentTemplate = (post) => {
       return template;
     }
 
+getAccountInfo = (username) => {
+
+    let totalVestingShares, totalVestingFundSteem;
+    let userInfo;
+
+    steem.api.getDynamicGlobalProperties((err, result) => {
+      totalVestingShares = result.total_vesting_shares;
+      totalVestingFundSteem = result.total_vesting_fund_steem;
+    })
+
+    return new Promise((resolve, reject) => {
+
+      steem.api.getAccounts([username], (err, result) => {
+
+        let user = result[0]
+
+        let jsonData = user.json_metadata ? JSON.parse(user.json_metadata).profile : {}
+
+        // steem power calc
+        let vestingShares = user.vesting_shares;
+        let delegatedVestingShares = user.delegated_vesting_shares;
+        let receivedVestingShares = user.received_vesting_shares;
+        let steemPower = steem.formatter.vestToSteem(vestingShares, totalVestingShares, totalVestingFundSteem);
+        let delegatedSteemPower = steem.formatter.vestToSteem((receivedVestingShares.split(' ')[0])+' VESTS', totalVestingShares, totalVestingFundSteem);
+        let outgoingSteemPower = steem.formatter.vestToSteem((receivedVestingShares.split(' ')[0]-delegatedVestingShares.split(' ')[0])+' VESTS', totalVestingShares, totalVestingFundSteem) - delegatedSteemPower;
+
+        // vote power calc
+        let lastVoteTime = (new Date - new Date(user.last_vote_time + "Z")) / 1000;
+        let votePower = user.voting_power += (10000 * lastVoteTime / 432000);
+        votePower = Math.min(votePower / 100, 100).toFixed(2);
+
+        let data = {
+          name: user.name,
+          image: jsonData.profile_image ? 'https://steemitimages.com/512x512/' + jsonData.profile_image : '',
+          rep: steem.formatter.reputation(user.reputation),
+          effectiveSp: parseInt(steemPower  + delegatedSteemPower - -outgoingSteemPower),
+          sp: parseInt(steemPower).toLocaleString(),
+          delegatedSpIn: parseInt(delegatedSteemPower).toLocaleString(),
+          delegatedSpOut: parseInt(-outgoingSteemPower).toLocaleString(),
+          vp: votePower,
+          steem: user.balance.substring(0, user.balance.length - 5),
+          sbd: user.sbd_balance.substring(0, user.sbd_balance.length - 3),
+          numOfPosts: user.post_count,
+          followerCount: '',
+          followingCount: '',
+          usdValue: '',
+          createdDate: new Date (user.created)
+        }
+        steem.api.getFollowCount(user.name, function(err, result){
+          data.followerCount = result.follower_count
+          data.followingCount = result.following_count
+          resolve(data)
+        })
+        data.usdValue = steem.formatter.estimateAccountValue(user)
+      })
+    });
+}
+
+
 // ----------------------------------------------------
 
 if ($('main').hasClass('feed') ) {
-
     let feedType = $('main.feed').data('feed-type')
 
     if(feedType === 'trending'){
@@ -241,76 +308,21 @@ if ($('main').hasClass('single')) {
 
 if ($('main').hasClass('profile') ) {
   let username = $('.profile').data('username')
-
-
-  let totalVestingShares, totalVestingFundSteem;
-
-  steem.api.getDynamicGlobalProperties((err, result) => {
-    totalVestingShares = result.total_vesting_shares;
-    totalVestingFundSteem = result.total_vesting_fund_steem;
+  getAccountInfo(username).then(data => {
+    let template =
+    `<section class="profile">
+    <h2>${data.name} [${data.rep}]</h2>
+    <img src="${data.image}" width="100px">
+    <h5>Followers: ${data.followerCount}</h5>
+    <h5>Following: ${data.followingCount}</h5>
+    <h5>Effective Steem Power: ${data.effectiveSp}</h5>
+    <h5>Steem Power: ${data.sp}</h5>
+    <h5>STEEM: ${data.steem}</h5>
+    <h5>SBD: ${data.sbd}</h5>
+    <h5>Vote Power: ${data.vp}%</h5>
+    </section>
+    `
+    $('main').prepend(template)
   })
-
-  steem.api.getAccounts([username], (err, result) => {
-
-    let user = result[0]
-
-    // store meta Data
-    let jsonData = user.json_metadata ? JSON.parse(user.json_metadata).profile : {}
-    // steem power calc
-    let vestingShares = user.vesting_shares;
-    let delegatedVestingShares = user.delegated_vesting_shares;
-    let receivedVestingShares = user.received_vesting_shares;
-    let steemPower = steem.formatter.vestToSteem(vestingShares, totalVestingShares, totalVestingFundSteem);
-    let delegatedSteemPower = steem.formatter.vestToSteem((receivedVestingShares.split(' ')[0])+' VESTS', totalVestingShares, totalVestingFundSteem);
-    let outgoingSteemPower = steem.formatter.vestToSteem((receivedVestingShares.split(' ')[0]-delegatedVestingShares.split(' ')[0])+' VESTS', totalVestingShares, totalVestingFundSteem) - delegatedSteemPower;
-
-    // vote power calc
-    let lastVoteTime = (new Date - new Date(user.last_vote_time + "Z")) / 1000;
-    let votePower = user.voting_power += (10000 * lastVoteTime / 432000);
-    votePower = Math.min(votePower / 100, 100).toFixed(2);
-
-    let data = {
-      name: user.name,
-      image: jsonData.profile_image ? 'https://steemitimages.com/2048x512/' + jsonData.profile_image : '',
-      rep: steem.formatter.reputation(user.reputation),
-      effectiveSp: parseInt(steemPower  + delegatedSteemPower - -outgoingSteemPower),
-      sp: parseInt(steemPower).toLocaleString(),
-      delegatedSpIn: parseInt(delegatedSteemPower).toLocaleString(),
-      delegatedSpOut: parseInt(-outgoingSteemPower).toLocaleString(),
-      vp: votePower,
-      steem: user.balance.substring(0, user.balance.length - 5),
-      sbd: user.sbd_balance.substring(0, user.sbd_balance.length - 3),
-      numOfPosts: user.post_count,
-      followerCount: '',
-      followingCount: '',
-      usdValue: '',
-      createdDate: new Date (user.created)
-    }
-
-
-  steem.api.getFollowCount(user.name, function(err, result){
-    data.followerCount = result.follower_count
-    data.followingCount = result.following_count
-  })
-
-
-  data.usdValue = steem.formatter.estimateAccountValue(user)
-
-
-  console.log(data)
-
-  let template =
-  `
-  <section class="profile">
-    <h2>${data.name} - ${data.rep}</h2>
-    <img src="${data.image}">
-  </section>
-  `
-
-  $('main').append(template)
-
-
-
-
-  })
+  getBlog(username)
 }
