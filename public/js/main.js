@@ -136,6 +136,7 @@ function getPostAndComments(url) {
       }))
     }
     appendSinglePost(resultsByDepth[0][0], users)
+    appendComments(resultsByDepth)
 
   })
 }
@@ -173,6 +174,51 @@ function appendSinglePost(post, users){
   `
   $('main').append(header + html)
 }
+
+function appendComments(posts){
+  $('main').append('<div class="comments"></div>')
+
+    posts.forEach( (postsAtDepth, i, arr) => {
+      postsAtDepth.forEach( (post, i, arr) => {
+        let template = createCommentTemplate(post)
+        if ( post.depth === 1 ) {
+          $('.comments').prepend( template)
+        } else if ( post.depth  > 1) {
+          var permlink = post.parent_permlink
+          $('.' + permlink ).append( template)
+        }
+      })
+    })
+}
+
+
+createCommentTemplate = (post) => {
+      var permlink = post.parent_permlink
+      var html = converter.makeHtml(post.body)
+      var voteMessage = (post.votes > 1 || post.votes == 0 )? 'votes' : 'vote'
+      var voteValue = (post.value > 0) ? '</span> <span>|</span> <span>$' + post.value  + '</span><span>': ''
+      var template = `
+      <div data-post-id="${post.id}"
+      data-permlink="${post.permlink}"
+      data-author="${post.author}"
+      data-title="${post.title}"
+      data-post-depth="${post.depth}"
+      class="comment comment-level-${post.depth} ${post.permlink}">
+        <h4>
+          <a href="https://steemit.com/@${post.author}" target="_blank">@${post.author}</a>
+          <span> &middot; </span> <span> ${ post.created } </span>
+        </h4>
+        <p>${ html }</p>
+        <div class="meta">
+          <span class="upvote">Upvote</span>
+          <span class="sc-item__divider">|</span>
+          <span class="sc-item__votecount">${post.votes} ${voteMessage} </span>
+          <span class="sc-item__divider">|</span>
+          <span class="sc-item__reply">Reply</span>
+        </div>
+      </div>`
+      return template;
+    }
 
 // ----------------------------------------------------
 

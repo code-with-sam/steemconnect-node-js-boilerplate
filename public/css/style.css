@@ -24,6 +24,20 @@ img {
   margin: 30px 0;
 }
 
+
+.comment {
+  margin: 15px 0;
+}
+.comment-level-1 {
+  padding-left: 15px;
+}
+.comment-level-2 {
+  padding-left: 30px;
+}
+.comment-level-3 {
+  padding-left: 45px;
+}
+
 input, label, textarea, button {
   /*margin: 15px 0;
   width: 100%;
