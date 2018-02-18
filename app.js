@@ -37,7 +37,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/user', user);
+app.use('/dashboard', user);
 app.use('/auth', auth);
 app.use('/logout', auth);
 app.use('/feed', feed);

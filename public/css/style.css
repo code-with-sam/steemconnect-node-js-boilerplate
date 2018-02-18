@@ -12,10 +12,19 @@ a {
 }
 
 main, aside {
+  padding: 30px 0;
   max-width: 520px;
   margin: 0 auto;
 }
-
+.tags {
+  margin: 10px 0;
+}
+.tags span {
+  border: solid 1px #ccc;
+  padding: 5px;
+  border-radius: 5px;
+  margin: 0 5px 0 0;
+}
 
 img {
   max-width: 100%;
@@ -24,8 +33,6 @@ img {
   border: solid 1px #ccc;
   margin: 30px 0;
 }
-
-
 .comment {
   margin: 15px 0;
 }
@@ -42,30 +49,42 @@ img {
 .meta form {
   display: inline-block;
 }
+
 input, label, textarea, button {
-  /*margin: 15px 0;
+  margin: 15px 0;
   width: 100%;
   border-radius: 3px;
-  padding: 5px;*/
+  padding: 5px;
 }
 
 input, textarea {
-  /*border: solid 1px #7b7b7b;*/
+  border: solid 1px #7b7b7b;
 }
 
 input:focus, textarea:focus {
-  /*outline: 0;*/
+  outline: 0;
 }
 
 textarea {
-  /*min-height: 400px;*/
+  min-height: 400px;
 }
 
 button, input[type="submit"] {
-  /*cursor: pointer;*/
+  cursor: pointer;
 }
 
 .vote {
-  /*width: 100px;
-  margin: 0 0 40px;*/
+  width: 100px;
+}
+
+.comment-message {
+  margin-top: 20px;
+}
+.send-comment {
+  cursor: pointer;
+  display: inline-block;
+  border-radius: 3px;
+  padding: 10px;
+  border: solid 1px #7b7b7b;
+  margin: 20px 0 40px;
 }

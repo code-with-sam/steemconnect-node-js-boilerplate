@@ -194,8 +194,8 @@ function appendSinglePost(post, users){
   let header = `
     <img src="${profileImage}" class="author-img" width="35" height="35" src="">
     <span class="overlay__author-username">@${post.author}</span>
-    ${tags}
-    <h1 class="title">${post.title}</h1>
+    <div class="tags">${tags}</div>
+    <h2 class="title">${post.title}</h2>
   `
   let voteButton = `
   <form method="post">
