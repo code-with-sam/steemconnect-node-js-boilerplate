@@ -10,4 +10,23 @@ router.get('/', (req, res, next) =>  {
   }
 });
 
+router.get('/@:username?', (req, res, next) => {
+      let username = req.params.username
+      console.log(username)
+      res.render('profile', {
+        name: username
+      });
+});
+
+router.get('/:category/@:username/:permlink', (req, res, next) => {
+      let category = req.params.category
+      let username = req.params.username
+      let permlink = req.params.permlink
+      res.render('single', {
+        category: category,
+        username: username,
+        permlink: permlink
+      });
+});
+
 module.exports = router;

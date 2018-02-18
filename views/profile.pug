@@ -1,0 +1,9 @@
+extends layout
+
+block content
+  include partials/nav
+
+  main.profile(data-username=`${name}`)
+
+    section.container
+      .row.feed-insert

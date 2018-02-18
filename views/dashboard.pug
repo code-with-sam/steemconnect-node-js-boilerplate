@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  include partials/nav
+
+  aside
+    img(src=`${profileImage}` width="50px")
+    h3 #{name}
+    p #{about}
+
+  main.dashboard(data-username=`${name}`)
+    section.container
+      .row.feed-insert

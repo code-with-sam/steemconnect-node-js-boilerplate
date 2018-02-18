@@ -3,7 +3,8 @@ extends layout
 block content
   include partials/nav
 
-  main.feed
-    h1 Feed - /Trending
+  main.feed(data-feed-type=`${feed}`)
+    .container
+      .row.feed-insert
 
   script(src='/js/showdown.min.js')

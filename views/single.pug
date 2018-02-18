@@ -1,0 +1,6 @@
+extends layout
+
+block content
+  include partials/nav
+
+  main.single(data-username=`${username}` data-permlink=`${permlink}` data-category=`${category}`)
