@@ -10,7 +10,7 @@ router.get('/', util.isAuthenticated, (req, res, next) => {
       } else {
         userMetadata = JSON.parse(req.session.steemconnect.json_metadata)
       }
-      res.render('user', {
+      res.render('dashboard', {
         name: req.session.steemconnect.name,
         about: userMetadata.profile.about,
         profileImage: userMetadata.profile.profile_image
