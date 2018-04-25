@@ -25,6 +25,14 @@ router.get('/@:username/feed', (req, res, next) => {
       });
 });
 
+router.get('/@:username/transfers', (req, res, next) => {
+      let username = req.params.username
+      res.render('transfers', {
+        username: username,
+        user: req.session.steemconnect ? req.session.steemconnect.name : ''
+      });
+});
+
 
 router.get('/:category/@:username/:permlink', (req, res, next) => {
       let category = req.params.category

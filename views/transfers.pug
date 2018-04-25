@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  include partials/nav
+
+  main.single(data-username=`${username}` data-user=`${user}`)
+    h1 Wallet
+
+    button.btn.btn-primary Claim Reward Balance
+
+    h2 STEEM Balance: --
+    h2 SBD Balance: --
+    h2 STEEM POWER: --
