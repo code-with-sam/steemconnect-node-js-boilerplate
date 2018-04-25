@@ -8,7 +8,6 @@ let session = require('express-session');
 let expressSanitized = require('express-sanitize-escape');
 
 let index = require('./routes/index');
-let user = require('./routes/user');
 let auth = require('./routes/auth');
 let feed = require('./routes/feed');
 let post = require('./routes/post');
@@ -37,7 +36,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/dashboard', user);
 app.use('/auth', auth);
 app.use('/logout', auth);
 app.use('/feed', feed);

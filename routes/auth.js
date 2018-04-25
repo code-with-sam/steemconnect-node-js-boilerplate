@@ -12,7 +12,7 @@ router.get('/', (req, res, next) => {
         steem.setAccessToken(req.query.access_token);
         steem.me((err, steemResponse) => {
           req.session.steemconnect = steemResponse.account;
-          res.redirect('/dashboard')
+          res.redirect(`/@${req.session.steemconnect.name}`)
         });
     }
 });
