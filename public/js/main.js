@@ -329,6 +329,9 @@ if ($('main').hasClass('feed') ) {
 
     if(feedType === 'trending'){
       getTrending({'limit': 20 })
+    } else if (feedType === 'user-feed'){
+      let username = $('main').data('username')
+      getUserFeed(username)
     } else {
       getLatest({'limit': 20 })
     }

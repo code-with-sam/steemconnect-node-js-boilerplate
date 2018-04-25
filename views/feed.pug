@@ -3,7 +3,7 @@ extends layout
 block content
   include partials/nav
 
-  main.feed(data-feed-type=`${feed}`)
+  main.feed(data-feed-type=`${feed}` data-username=`${username}`)
     .container
       .row.feed-insert
 

@@ -17,6 +17,15 @@ router.get('/@:username', (req, res, next) => {
       });
 });
 
+router.get('/@:username/feed', (req, res, next) => {
+      let username = req.params.username
+      res.render('feed', {
+        feed: 'user-feed',
+        username: username
+      });
+});
+
+
 router.get('/:category/@:username/:permlink', (req, res, next) => {
       let category = req.params.category
       let username = req.params.username
