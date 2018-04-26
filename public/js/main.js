@@ -1,7 +1,14 @@
 let allUsers = []
 let allContent = []
 let converter = new showdown.Converter({ tables: true })
+let totalVestingShares, totalVestingFundSteem;
 
+steem.api.getDynamicGlobalProperties((err, result) => {
+  totalVestingShares = result.total_vesting_shares;
+  totalVestingFundSteem = result.total_vesting_fund_steem;
+})
+
+///
 function getTrending(query, initial){
   steem.api.getDiscussionsByTrending(query, (err, result) => {
     if (err === null) {
@@ -264,14 +271,7 @@ createCommentTemplate = (post) => {
     }
 
 getAccountInfo = (username) => {
-
-    let totalVestingShares, totalVestingFundSteem;
     let userInfo;
-
-    steem.api.getDynamicGlobalProperties((err, result) => {
-      totalVestingShares = result.total_vesting_shares;
-      totalVestingFundSteem = result.total_vesting_fund_steem;
-    })
 
     return new Promise((resolve, reject) => {
 
@@ -321,7 +321,35 @@ getAccountInfo = (username) => {
     });
 }
 
+function getAccountTransactions(username) {
+  steem.api.getAccountHistory(username, -1, 10000, function(err, result){
+    if (err) throw err
 
+    result.forEach((tx, i) => {
+      let txTime = new Date(tx[1].timestamp).valueOf()
+      if(tx[1].op[0] === 'transfer') {
+        let row = `<tr>
+          <td>${moment(txTime).fromNow()}</td>
+          <td>Transfer: ${tx[1].op[1].amount} from: ${tx[1].op[1].from} To: ${tx[1].op[1].to}
+          <td class="table-cell-break">${tx[1].op[1].memo}</td>
+        </tr>`
+        $('.account-history tbody').append(row)
+      }
+      if(tx[1].op[0] == 'claim_reward_balance'){
+        let row = `<tr>
+        <td>${moment(txTime).fromNow()}</td>
+        <td>Claim Reward ${tx[1].op[1].reward_sbd} ${tx[1].op[1].reward_steem} ${vestsToSteem(parseFloat(tx[1].op[1].reward_vests)).toFixed(3)}SP</td>
+        <td></td>
+        </tr>`
+        $('.account-history tbody').append(row)
+      }
+    })
+  })
+}
+
+function vestsToSteem(vests){
+  return steem.formatter.vestToSteem(vests, totalVestingShares, totalVestingFundSteem);
+}
 // ----------------------------------------------------
 
 if ($('main').hasClass('feed') ) {
@@ -345,6 +373,11 @@ if ($('main').hasClass('single')) {
 if ($('main').hasClass('dashboard')) {
   let username = $('main').data('username')
   getUserFeed(username)
+}
+
+if ($('main').hasClass('transfers')){
+  let username = $('main').data('username')
+  getAccountTransactions(username)
 }
 
 if ($('main').hasClass('profile') ) {

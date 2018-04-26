@@ -11,11 +11,21 @@ a {
   display: inline-block;*/
 }
 
-main, aside {
+main {
   padding: 30px 0;
   max-width: 520px;
   margin: 0 auto;
 }
+
+.profile__aside {
+
+}
+
+.table-cell-break {
+  word-break:break-all;
+}
+
+
 .tags {
   margin: 10px 0;
 }
