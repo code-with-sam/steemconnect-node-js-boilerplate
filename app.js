@@ -14,6 +14,8 @@ let post = require('./routes/post');
 
 let config = require('./config')
 
+let util = require('./modules/util')
+
 let app = express();
 
 app.use(session({
@@ -34,6 +36,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(expressSanitized.middleware());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// custom middleware
+app.use(util.setUser);
+
 
 app.use('/', index);
 app.use('/auth', auth);

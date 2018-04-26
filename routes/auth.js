@@ -6,12 +6,12 @@ let router = express.Router();
 router.get('/', (req, res, next) => {
     if (!req.query.access_token ) {
         let uri = steem.getLoginURL();
-        console.log(uri);
         res.redirect(uri);
     } else {
         steem.setAccessToken(req.query.access_token);
         steem.me((err, steemResponse) => {
           req.session.steemconnect = steemResponse.account;
+          req.session.access_token = req.query.access_token;
           res.redirect(`/@${req.session.steemconnect.name}`)
         });
     }

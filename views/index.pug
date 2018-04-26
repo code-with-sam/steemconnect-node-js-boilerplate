@@ -1,6 +1,9 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-  a(href="/auth") Login With SteemConnect
+  include partials/nav
+
+  main
+    h1= title
+    p Welcome to #{title}
+    a(href="/auth") Login With SteemConnect
