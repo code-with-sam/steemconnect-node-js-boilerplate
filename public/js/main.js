@@ -99,9 +99,9 @@ function displayContent(result, initial){
       let itemTemplate = `
         <div class="item " data-post-id="${post.id}" data-url="${post.url}" data-permlink="${ post.permlink }">
           <img class="item__image " src="https://steemitimages.com/520x520/${image}" onerror="">
-          <div class="item__author">
-            <a href="${post.url}"><h2>${post.title}</h2></a>
-            <a href="@${post.author}"><span>@${post.author}</span></a>
+          <div class="item__meta">
+            <a href="${post.url}"><h3>${post.title}</h3></a>
+            <a href="/@${post.author}"><span>@${post.author}</span></a>
             <form method="post">
               <input type="hidden" name="postId" value="${post.id}">
               <input type="hidden" name="author" value="${post.author}">
@@ -379,13 +379,15 @@ if ($('main').hasClass('feed') ) {
     let feedType = $('main.feed').data('feed-type')
     let tag = $('main.feed').data('tag') || ''
 
-    getTrendingTags()
+
     if(feedType === 'trending'){
+      getTrendingTags()
       getTrending({tag, 'limit': 20 }, true)
     } else if (feedType === 'user-feed'){
       let username = $('main').data('username')
       getUserFeed(username)
     } else {
+      getTrendingTags()
       getLatest({tag, 'limit': 20 }, true)
     }
 }

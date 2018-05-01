@@ -3,7 +3,7 @@ extends layout
 block content
   include partials/nav
 
-  main
+  main.create-post
     h1 Create Post
     form(action="/post/create-post/" method="post")
       label Title
@@ -12,6 +12,6 @@ block content
       textarea(name="post")
       label Tags
       input(type="text" name="tags")
-      button(type="submit") Submit
+      button.btn.btn-primary(type="submit") Submit
       p Posting as #{name}
       p #{msg}
