@@ -125,3 +125,7 @@ button, input[type="submit"] {
   width: 80px;
   height: 80px;
 }
+
+.btn.load-more-posts {
+  display: block;
+}

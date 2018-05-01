@@ -42,37 +42,38 @@ function getLatest(query, initial){
 
 function getMoreContent(filter, tag){
   let lastItem = allContent[allContent.length - 1]
+  let username = $('main').data('username')
   let query = {
-      'tag': tag,
-      'limit': 24,
+      tag: tag,
+      limit: 24,
       start_author: lastItem.author,
       start_permlink: lastItem.permlink }
 
+      console.log(filter, tag)
       if(filter === 'trending'){
         getTrending(query, false)
-      } else {
+      } else if(filter === 'latest'){
         getLatest(query, false)
+      } else if(filter === 'user-feed'){
+        query.tag = username
+        console.log(query)
+        getUserFeed(query, false)
+      } else {
+        query.tag = username
+        getBlog(query, false)
       }
 }
 
-function getBlog(username){
-  let query = {
-    tag: username,
-    limit: 10
-  }
+function getBlog(query, initial){
   steem.api.getDiscussionsByBlog(query, (err, result) => {
-      displayContent(result)
+      displayContent(result, initial)
   })
 }
 
-function getUserFeed(username){
-  let query = {
-    tag: username,
-    limit: 20
-  }
+function getUserFeed(query, initial){
   steem.api.getDiscussionsByFeed(query, (err, result) => {
     console.log(result)
-    displayContent(result)
+    displayContent(result,initial)
   });
 }
 
@@ -385,7 +386,7 @@ if ($('main').hasClass('feed') ) {
       getTrending({tag, 'limit': 20 }, true)
     } else if (feedType === 'user-feed'){
       let username = $('main').data('username')
-      getUserFeed(username)
+      getUserFeed({ tag: username, limit: 20 }, true)
     } else {
       getTrendingTags()
       getLatest({tag, 'limit': 20 }, true)
@@ -431,7 +432,8 @@ if ($('main').hasClass('profile') ) {
     `
     $('main').prepend(template)
   })
-  getBlog(username)
+  let query = { tag: username, limit: 10 }
+  getBlog(query, true)
 }
 
 
@@ -467,4 +469,11 @@ $('main').on('click', '.send-comment', (e) => {
           console.log(response)
           $(`<p>${response.msg}</p>`).insertAfter($comment)
       })
+})
+
+
+$('.load-more-posts').on('click', (e) => {
+  let filter = $('main').data('feed-type')
+  let tag = $('main').data('tag') || ''
+  getMoreContent(filter, tag)
 })
