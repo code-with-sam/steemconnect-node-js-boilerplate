@@ -1,7 +1,33 @@
 let allUsers = []
 let allContent = []
 let converter = new showdown.Converter({ tables: true })
+let totalVestingShares, totalVestingFundSteem;
 
+/**
+ * gets totalVestingShares and totalVestingFundSteem from STEEM API to use later
+ */
+steem.api.getDynamicGlobalProperties((err, result) => {
+  totalVestingShares = result.total_vesting_shares;
+  totalVestingFundSteem = result.total_vesting_fund_steem;
+})
+
+/**
+ * Calls steem api for current top 20 trending tags
+ * @function
+ */
+function getTrendingTags(){
+  steem.api.getTrendingTags('', 20, (err, result) => {
+    if (err) return console.log(err);
+    displayTrendingTags(result)
+  });
+}
+
+/**
+ * Gets a set of posts trending from the the steem api
+ * @function
+ * @param {Object} query - a steem feed query object - {tag: 'photography', 'limit': 20 }
+ * @param {Boolean} initial - If this is an initial call or a call from 'get-more-posts' to add aditional posts to feed
+ */
 function getTrending(query, initial){
   steem.api.getDiscussionsByTrending(query, (err, result) => {
     if (err === null) {
@@ -13,8 +39,13 @@ function getTrending(query, initial){
   });
 }
 
+/**
+ * Gets a set of latest posts from the the steem api
+ * @function
+ * @param {Object} query - a steem feed query object - e.g {tag: 'photography', 'limit': 20 }
+ * @param {Boolean} initial - If this is an initial call or a call from 'get-more-posts' to add aditional posts to feed
+ */
 function getLatest(query, initial){
-
   steem.api.getDiscussionsByCreated(query, (err, result) => {
     if (err === null) {
       displayContent(result, initial)
@@ -25,43 +56,66 @@ function getLatest(query, initial){
   });
 }
 
+/**
+ * Gets a set of latest posts from specific author
+ * @function
+ * @param {Object} query - a steem feed query object - e.g {tag: 'ausername', 'limit': 20 }
+ * @param {Boolean} initial - If this is an initial call or a call from 'get-more-posts' to add aditional posts to feed
+ */
+function getBlog(query, initial){
+  steem.api.getDiscussionsByBlog(query, (err, result) => {
+      displayContent(result, initial)
+  })
+}
+
+/**
+ * Gets a set of latest posts from specific authors feed (who they follow)
+ * @function
+ * @param {Object} query - a steem feed query object - e.g {tag: 'username', 'limit': 20 }
+ * @param {Boolean} initial - If this is an initial call or a call from 'get-more-posts' to add aditional posts to feed
+ */
+function getUserFeed(query, initial){
+  steem.api.getDiscussionsByFeed(query, (err, result) => {
+    console.log(result)
+    displayContent(result,initial)
+  });
+}
+
+/**
+ * Adds more posts to the current feed view
+ * @function
+ * @param {String} filter - 'latest', 'trending', 'user-feed'
+ * @param {boolean} tag - a tag used on posts
+ */
 function getMoreContent(filter, tag){
   let lastItem = allContent[allContent.length - 1]
+  let username = $('main').data('username')
   let query = {
-      'tag':
-      tag,
-      'limit': 24,
+      tag: tag,
+      limit: 24,
       start_author: lastItem.author,
       start_permlink: lastItem.permlink }
 
       if(filter === 'trending'){
         getTrending(query, false)
-      } else {
+      } else if(filter === 'latest'){
         getLatest(query, false)
+      } else if(filter === 'user-feed'){
+        query.tag = username
+        console.log(query)
+        getUserFeed(query, false)
+      } else {
+        query.tag = username
+        getBlog(query, false)
       }
 }
 
-function getBlog(username){
-  let query = {
-    tag: username,
-    limit: 10
-  }
-  steem.api.getDiscussionsByBlog(query, (err, result) => {
-      displayContent(result)
-  })
-}
-
-function getUserFeed(username){
-  let query = {
-    tag: username,
-    limit: 20
-  }
-  steem.api.getDiscussionsByFeed(query, (err, result) => {
-    console.log(result)
-    displayContent(result)
-  });
-}
-
+/**
+ * Adds more posts to the current feed view
+ * @function
+ * @param {Array} result - An Array of Steem posts from the STEEM API
+ * @param {Boolean} initial - If this is an initial call or a call from 'get-more-posts' to add aditional posts to feed
+ */
 function displayContent(result, initial){
   if (!initial) result.shift()
   for (let i = 0; i < result.length ; i++) {
@@ -85,9 +139,9 @@ function displayContent(result, initial){
       let itemTemplate = `
         <div class="item " data-post-id="${post.id}" data-url="${post.url}" data-permlink="${ post.permlink }">
           <img class="item__image " src="https://steemitimages.com/520x520/${image}" onerror="">
-          <div class="item__author">
-            <a href="${post.url}"><h2>${post.title}</h2></a>
-            <a href="@${post.author}"><span>@${post.author}</span></a>
+          <div class="item__meta">
+            <a href="${post.url}"><h3>${post.title}</h3></a>
+            <a href="/@${post.author}"><span>@${post.author}</span></a>
             <form method="post">
               <input type="hidden" name="postId" value="${post.id}">
               <input type="hidden" name="author" value="${post.author}">
@@ -101,12 +155,38 @@ function displayContent(result, initial){
   }
 }
 
+/**
+ * Adds an array of tags to the page
+ * @function
+ * @param {Array} tags - An Array of Steem tags from the STEEM API
+ */
+function displayTrendingTags(tags){
+  let feedType = $('main.feed').data('feed-type')
+
+  for (var i = 1; i < tags.length; i++) {
+    let tag = tags[i]
+    let template = `<a class="btn btn-outline-dark" href="/feed/${feedType}/${tag.name}">${tag.name}</a>`
+
+    $('.trending__tags').append(template)
+  }
+}
+
+/**
+ * calls the steem api for a list of accounts - adds them to allUsers global var
+ * @function
+ * @param {Array} username - an array of steem usernames e.g ['fred', 'bob', 'ned']
+ */
 function getaccounts(usernames){
   steem.api.getAccounts(usernames, (err, result) => {
     allUsers = allUsers.concat(result)
   })
 }
 
+/**
+ * Gets the first image from a set of markdown where possible
+ * @function
+ * @param {String} markdown - A String containing markdown formatted text
+ */
 function genImageInHTML(markdown){
     let placeholder = document.createElement('div');
     placeholder.innerHTML = converter.makeHtml(markdown)
@@ -118,6 +198,11 @@ function genImageInHTML(markdown){
     }
 }
 
+/**
+ * Gets post and comment data for a url slug
+ * @function
+ * @param {String} url - '/category}/username/permlink'
+ */
 function getPostAndComments(url) {
   steem.api.getState(url, (err, result) => {
     let users = result.accounts;
@@ -166,6 +251,11 @@ function getPostAndComments(url) {
   })
 }
 
+/**
+ * gets a profile image from a steem users data where possible
+ * @function
+ * @param {Object} author - an author object from a steem api request
+ */
 function generateProfileImage(author){
   let profileImage = 'img/default-user.jpg';
 
@@ -184,6 +274,12 @@ function generateProfileImage(author){
   return profileImage
 }
 
+/**
+ * appends the main part of a post to the page
+ * @function
+ * @param {Object} post - steem post object from getPostAndComments()
+ * @param {Array} users - an Array of steem user accounts from steem api
+ */
 function appendSinglePost(post, users){
   let author = users[post.author]
   console.log(author)
@@ -193,7 +289,7 @@ function appendSinglePost(post, users){
   let tags = JSON.parse(post.json).tags.reduce( (all,tag) => all + `<span>${tag}</span>`, '')
   let header = `
     <img src="${profileImage}" class="author-img" width="35" height="35" src="">
-    <span class="overlay__author-username">@${post.author}</span>
+    <a href="/@${post.author}" class="author-username">@${post.author}</a>
     <div class="tags">${tags}</div>
     <h2 class="title">${post.title}</h2>
   `
@@ -213,23 +309,32 @@ function appendSinglePost(post, users){
   $('main').append(header + html + voteButton + commentBox)
 }
 
-function appendComments(posts){
+/**
+ * appends comments to single page after main content
+ * @function
+ * @param {Array} comments - an Array of comments to a steem post
+ */
+function appendComments(comments){
   $('main').append('<div class="comments"></div>')
 
-    posts.forEach( (postsAtDepth, i, arr) => {
-      postsAtDepth.forEach( (post, i, arr) => {
-        let template = createCommentTemplate(post)
-        if ( post.depth === 1 ) {
+    comments.forEach( (postsAtDepth, i, arr) => {
+      postsAtDepth.forEach( (comment, i, arr) => {
+        let template = createCommentTemplate(comment)
+        if ( comment.depth === 1 ) {
           $('.comments').prepend( template)
-        } else if ( post.depth  > 1) {
-          var permlink = post.parent_permlink
+        } else if ( comment.depth  > 1) {
+          var permlink = comment.parent_permlink
           $('.' + permlink ).append( template)
         }
       })
     })
 }
 
-
+/**
+ * creates the HTML for a comment from a comment object
+ * @function
+ * @param {Object} post - a comment object from STEEM  getState API
+ */
 createCommentTemplate = (post) => {
       var permlink = post.parent_permlink
       var html = converter.makeHtml(post.body)
@@ -243,8 +348,8 @@ createCommentTemplate = (post) => {
       data-post-depth="${post.depth}"
       class="comment comment-level-${post.depth} ${post.permlink}">
         <h4>
-          <a href="https://steemit.com/@${post.author}" target="_blank">@${post.author}</a>
-          <span> &middot; </span> <span> ${ post.created } </span>
+          <a href="/@${post.author}" target="_blank">@${post.author}</a>
+          <span> &middot; </span> <span> ${ moment(post.created).fromNow() } </span>
         </h4>
         <p>${ html }</p>
         <div class="meta">
@@ -256,22 +361,18 @@ createCommentTemplate = (post) => {
           </form>
           <span class="sc-item__divider">|</span>
           <span class="sc-item__votecount">${post.votes} ${voteMessage} </span>
-          <span class="sc-item__divider">|</span>
-          <span class="sc-item__reply">Reply</span>
         </div>
       </div>`
       return template;
     }
 
-getAccountInfo = (username) => {
-
-    let totalVestingShares, totalVestingFundSteem;
+/**
+ * format raw user accoutn data from Steem api
+ * @function
+ * @param {String} username - a single steem username
+ */
+function getAccountInfo(username) {
     let userInfo;
-
-    steem.api.getDynamicGlobalProperties((err, result) => {
-      totalVestingShares = result.total_vesting_shares;
-      totalVestingFundSteem = result.total_vesting_fund_steem;
-    })
 
     return new Promise((resolve, reject) => {
 
@@ -279,8 +380,10 @@ getAccountInfo = (username) => {
 
         let user = result[0]
 
-        let jsonData = user.json_metadata ? JSON.parse(user.json_metadata).profile : {}
+        let jsonData;
 
+        try {jsonData = JSON.parse(user.json_metadata).profile} catch(err) { console.log(err)}
+        console.log(jsonData)
         // steem power calc
         let vestingShares = user.vesting_shares;
         let delegatedVestingShares = user.delegated_vesting_shares;
@@ -297,6 +400,7 @@ getAccountInfo = (username) => {
         let data = {
           name: user.name,
           image: jsonData.profile_image ? 'https://steemitimages.com/512x512/' + jsonData.profile_image : '',
+          cover: jsonData.cover_image,
           rep: steem.formatter.reputation(user.reputation),
           effectiveSp: parseInt(steemPower  + delegatedSteemPower - -outgoingSteemPower),
           sp: parseInt(steemPower).toLocaleString(),
@@ -321,16 +425,60 @@ getAccountInfo = (username) => {
     });
 }
 
+/**
+ * adds account transactions to user transfers page
+ * @function
+ * @param {String} username - a single steem username
+ */
+function getAccountTransactions(username) {
+  steem.api.getAccountHistory(username, -1, 10000, function(err, result){
+    if (err) throw err
 
-// ----------------------------------------------------
+    result.forEach((tx, i) => {
+      let txTime = new Date(tx[1].timestamp).valueOf()
+      if(tx[1].op[0] === 'transfer') {
+        let row = `<tr>
+          <td>${moment(txTime).fromNow()}</td>
+          <td>Transfer: ${tx[1].op[1].amount} from: ${tx[1].op[1].from} To: ${tx[1].op[1].to}
+          <td class="table-cell-break">${tx[1].op[1].memo}</td>
+        </tr>`
+        $('.account-history tbody').append(row)
+      }
+      if(tx[1].op[0] == 'claim_reward_balance'){
+        let row = `<tr>
+        <td>${moment(txTime).fromNow()}</td>
+        <td>Claim Reward ${tx[1].op[1].reward_sbd} ${tx[1].op[1].reward_steem} ${vestsToSteem(parseFloat(tx[1].op[1].reward_vests)).toFixed(3)}SP</td>
+        <td></td>
+        </tr>`
+        $('.account-history tbody').append(row)
+      }
+    })
+  })
+}
+
+/**
+ * helper to format vests to readable Steem power number
+ * @function
+ * @param {String} username - a single steem username
+ */
+function vestsToSteem(vests){
+  return steem.formatter.vestToSteem(vests, totalVestingShares, totalVestingFundSteem);
+}
+
+// On Page Load
 
 if ($('main').hasClass('feed') ) {
     let feedType = $('main.feed').data('feed-type')
-
+    let tag = $('main.feed').data('tag') || ''
     if(feedType === 'trending'){
-      getTrending({'limit': 20 })
+      getTrendingTags()
+      getTrending({tag, 'limit': 20 }, true)
+    } else if (feedType === 'user-feed'){
+      let username = $('main').data('username')
+      getUserFeed({ tag: username, limit: 20 }, true)
     } else {
-      getLatest({'limit': 20 })
+      getTrendingTags()
+      getLatest({tag, 'limit': 20 }, true)
     }
 }
 
@@ -344,27 +492,40 @@ if ($('main').hasClass('dashboard')) {
   getUserFeed(username)
 }
 
+if ($('main').hasClass('transfers')){
+  let username = $('main').data('username')
+  getAccountTransactions(username)
+  getAccountInfo(username).then(data => {
+    console.log(data)
+    let template =`
+      <div class="balances">
+        <h5>STEEM: ${data.steem} </h5>
+        <h5>STEEM Power: ${data.sp}</h5>
+        <h5>SBD: ${data.sbd} </h5>
+      </div>
+    `
+    $('.wallet').append(template)
+  })
+}
+
 if ($('main').hasClass('profile') ) {
   let username = $('.profile').data('username')
   getAccountInfo(username).then(data => {
+    data.cover = data.cover || 'http://placehold.it/1200x300?text=-'
     let template =
-    `<section class="profile">
-    <h2>${data.name} [${data.rep}]</h2>
-    <img src="${data.image}" width="100px">
-    <h5>Followers: ${data.followerCount}</h5>
-    <h5>Following: ${data.followingCount}</h5>
-    <h5>Effective Steem Power: ${data.effectiveSp}</h5>
-    <h5>Steem Power: ${data.sp}</h5>
-    <h5>STEEM: ${data.steem}</h5>
-    <h5>SBD: ${data.sbd}</h5>
-    <h5>Vote Power: ${data.vp}%</h5>
-    </section>
+    `<header class="profile__header" style="background-image: url(${data.cover})">
+      <h2>${data.name} [${data.rep}]</h2>
+      <img src="${data.image}" width="100px">
+      <h5>Followers: ${data.followerCount} - Following: ${data.followingCount}</h5>
+      </header>
     `
     $('main').prepend(template)
   })
-  getBlog(username)
+  let query = { tag: username, limit: 10 }
+  getBlog(query, true)
 }
 
+// UI Actions
 
 $('main').on('click', '.vote',(e) => {
   let $voteButton = $(e.currentTarget)
@@ -396,6 +557,17 @@ $('main').on('click', '.send-comment', (e) => {
         }
       }, (response) => {
           console.log(response)
-          $(`<p>${response.msg}</p>`).insertAfter($comment)
+          if (response.error) {
+            $(`<span>${response.error.error_description}</span>`).insertAfter($comment)
+          } else {
+            $(`<p>${response.msg}</p>`).insertAfter($comment)
+          }
       })
+})
+
+
+$('.load-more-posts').on('click', (e) => {
+  let filter = $('main').data('feed-type')
+  let tag = $('main').data('tag') || ''
+  getMoreContent(filter, tag)
 })

@@ -1,0 +1,12 @@
+extends layout
+
+block content
+  include partials/nav
+
+  main.profile.transfers(data-username=`${username}` data-user=`${user}`)
+    include partials/profile-nav
+    section.wallet
+    section
+      .container
+        table.table.account-history
+          tbody

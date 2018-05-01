@@ -8,12 +8,13 @@ let session = require('express-session');
 let expressSanitized = require('express-sanitize-escape');
 
 let index = require('./routes/index');
-let user = require('./routes/user');
 let auth = require('./routes/auth');
 let feed = require('./routes/feed');
 let post = require('./routes/post');
 
 let config = require('./config')
+
+let util = require('./modules/util')
 
 let app = express();
 
@@ -36,8 +37,11 @@ app.use(expressSanitized.middleware());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// custom middleware
+app.use(util.setUser);
+
+
 app.use('/', index);
-app.use('/dashboard', user);
 app.use('/auth', auth);
 app.use('/logout', auth);
 app.use('/feed', feed);

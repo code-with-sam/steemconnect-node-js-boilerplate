@@ -1,6 +1,11 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-  a(href="/auth") Login With SteemConnect
+  include partials/nav
+
+  main
+    .jumbotron
+      h1 SteemConnect Node.js Boilerplate
+      p This project aims to kick-start your STEEM based project.
+      a.btn.btn-dark(href="/feed/trending") View Trending
+      a.btn.btn-primary(href="/auth") Login With SteemConnect

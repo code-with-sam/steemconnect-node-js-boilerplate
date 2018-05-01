@@ -1,21 +1,27 @@
-* {
-  box-sizing: border-box;
-}
-body {
-  /*font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;*/
-}
-
-a {
-  /*color: #00B7FF;
-  margin: 0 20px 20px 0;
-  display: inline-block;*/
-}
-
-main, aside {
+.feed,
+.profile-feed,
+.trending__tags,
+.balances,
+.create-post,
+.single {
   padding: 30px 0;
   max-width: 520px;
   margin: 0 auto;
 }
+
+.wallet {
+  padding: 50px;
+  background: #f3f3f3;
+}
+.trending__tags a {
+  margin: 5px;
+}
+
+.table-cell-break {
+  word-break:break-all;
+}
+
+
 .tags {
   margin: 10px 0;
 }
@@ -30,8 +36,16 @@ img {
   max-width: 100%;
 }
 .item {
-  border: solid 1px #ccc;
+  border: solid 1px #e1e0e0;
   margin: 30px 0;
+  border-radius: 3px;
+  box-shadow: 0 0 13px rgba(0,0,0,0.05);
+}
+.item__image {
+  min-width: 100%;
+}
+.item__meta {
+  padding: 15px;
 }
 .comment {
   margin: 15px 0;
@@ -87,4 +101,28 @@ button, input[type="submit"] {
   padding: 10px;
   border: solid 1px #7b7b7b;
   margin: 20px 0 40px;
+}
+
+.profile__subnav {
+}
+.profile__subnav a {
+  margin: 10px;
+}
+.profile__header {
+  /*height: 150px;*/
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  text-align: center;
+  padding: 15px;
+}
+.profile__header img {
+  border-radius: 50%;
+  margin: 10px;
+  width: 80px;
+  height: 80px;
+}
+
+.btn.load-more-posts {
+  display: block;
 }
