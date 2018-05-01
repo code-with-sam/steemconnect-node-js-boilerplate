@@ -10,6 +10,7 @@ router.get('/', (req, res, next) =>  {
   }
 });
 
+/* GET a users blog profile page. */
 router.get('/@:username', (req, res, next) => {
       let username = req.params.username
       res.render('profile', {
@@ -17,6 +18,7 @@ router.get('/@:username', (req, res, next) => {
       });
 });
 
+/* GET a users blog feed page. */
 router.get('/@:username/feed', (req, res, next) => {
       let username = req.params.username
       res.render('feed', {
@@ -25,6 +27,7 @@ router.get('/@:username/feed', (req, res, next) => {
       });
 });
 
+/* GET a users transfers profile page. */
 router.get('/@:username/transfers', (req, res, next) => {
       let username = req.params.username
       res.render('transfers', {
@@ -33,7 +36,7 @@ router.get('/@:username/transfers', (req, res, next) => {
       });
 });
 
-
+/* GET a single post page page. */
 router.get('/:category/@:username/:permlink', (req, res, next) => {
       let category = req.params.category
       let username = req.params.username

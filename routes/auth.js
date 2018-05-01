@@ -2,7 +2,7 @@ let express = require('express');
 let steem = require('../modules/steemconnect')
 let router = express.Router();
 
-/* GET auth listing. */
+/* GET authenticate a user/redirect to steemconnect. */
 router.get('/', (req, res, next) => {
     if (!req.query.access_token ) {
         let uri = steem.getLoginURL();
@@ -17,6 +17,7 @@ router.get('/', (req, res, next) => {
     }
 });
 
+/* GET authenticate a user/redirect to steemconnect. */
 router.get('/logout', (req, res) => {
    req.session.destroy();
    res.redirect("/")
