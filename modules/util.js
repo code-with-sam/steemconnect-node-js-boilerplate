@@ -8,10 +8,17 @@ module.exports.urlString = () => {
 }
 
 module.exports.isAuthenticated = (req, res, next) => {
-  if (req.session.steemconnect)
+  if (req.session.access_token)
       return next();
 
   res.redirect('/');
+}
+
+module.exports.isAuthenticatedJSON = (req, res, next) => {
+  if (req.session.access_token)
+      return next();
+
+  res.json({ error: 'Please Sign In' })
 }
 
 module.exports.setUser = (req, res, next) => {
