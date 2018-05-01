@@ -298,8 +298,10 @@ getAccountInfo = (username) => {
 
         let user = result[0]
 
-        let jsonData = user.json_metadata ? JSON.parse(user.json_metadata).profile : {}
+        let jsonData;
 
+        try {jsonData = JSON.parse(user.json_metadata).profile} catch(err) { console.log(err)}
+        console.log(jsonData)
         // steem power calc
         let vestingShares = user.vesting_shares;
         let delegatedVestingShares = user.delegated_vesting_shares;
@@ -316,6 +318,7 @@ getAccountInfo = (username) => {
         let data = {
           name: user.name,
           image: jsonData.profile_image ? 'https://steemitimages.com/512x512/' + jsonData.profile_image : '',
+          cover: jsonData.cover_image,
           rep: steem.formatter.reputation(user.reputation),
           effectiveSp: parseInt(steemPower  + delegatedSteemPower - -outgoingSteemPower),
           sp: parseInt(steemPower).toLocaleString(),
@@ -339,6 +342,7 @@ getAccountInfo = (username) => {
       })
     });
 }
+
 
 function getAccountTransactions(username) {
   steem.api.getAccountHistory(username, -1, 10000, function(err, result){
@@ -399,23 +403,29 @@ if ($('main').hasClass('dashboard')) {
 if ($('main').hasClass('transfers')){
   let username = $('main').data('username')
   getAccountTransactions(username)
+  getAccountInfo(username).then(data => {
+    console.log(data)
+    let template =`
+      <div class="balances">
+        <h5>STEEM: ${data.steem} </h5>
+        <h5>STEEM Power: ${data.sp}</h5>
+        <h5>SBD: ${data.sbd} </h5>
+      </div>
+    `
+    $('.wallet').append(template)
+  })
 }
 
 if ($('main').hasClass('profile') ) {
   let username = $('.profile').data('username')
   getAccountInfo(username).then(data => {
+    data.cover = data.cover || 'http://placehold.it/1200x300?text=-'
     let template =
-    `<section class="profile">
-    <h2>${data.name} [${data.rep}]</h2>
-    <img src="${data.image}" width="100px">
-    <h5>Followers: ${data.followerCount}</h5>
-    <h5>Following: ${data.followingCount}</h5>
-    <h5>Effective Steem Power: ${data.effectiveSp}</h5>
-    <h5>Steem Power: ${data.sp}</h5>
-    <h5>STEEM: ${data.steem}</h5>
-    <h5>SBD: ${data.sbd}</h5>
-    <h5>Vote Power: ${data.vp}%</h5>
-    </section>
+    `<header class="profile__header" style="background-image: url(${data.cover})">
+      <h2>${data.name} [${data.rep}]</h2>
+      <img src="${data.image}" width="100px">
+      <h5>Followers: ${data.followerCount} - Following: ${data.followingCount}</h5>
+      </header>
     `
     $('main').prepend(template)
   })

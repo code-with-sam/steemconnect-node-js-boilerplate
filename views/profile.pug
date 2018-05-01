@@ -3,8 +3,7 @@ extends layout
 block content
   include partials/nav
 
-  aside
-
-  main.profile(data-username=`${username}`)
-    section.container
+  main.profile(data-username=`${username}` data-user=`${user}`)
+    include partials/profile-nav
+    section.profile-feed
       .row.feed-insert

@@ -1,0 +1,6 @@
+section.container.profile__subnav
+  .row
+    a.btn.btn-dark(href=`/@${username}`) Blog
+    a.btn.btn-dark(href=`/@${username}/transfers`) Transfers
+    if user.name == username
+      a.btn.btn-dark(href=`/@${username}/feed`) Your Feed

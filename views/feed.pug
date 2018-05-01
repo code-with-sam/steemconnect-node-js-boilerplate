@@ -6,7 +6,12 @@ block content
   aside.trending__tags
   main.feed(data-feed-type=`${feed}` data-username=`${username}` data-tag=`${tag}`)
     .container
-      .row: h2= feed + ' - ' + tag
+      if feed != 'user-feed'
+        .row: h2= feed + ' - ' + tag
+      else
+        .row
+          h2= 'Hey ' + username + ' 👋'
+          h5 Here are posts from people you follow
     .container
       .row.feed-insert
 

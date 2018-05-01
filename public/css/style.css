@@ -1,29 +1,23 @@
 * {
   box-sizing: border-box;
 }
-body {
-  /*font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;*/
-}
 
-a {
-  /*color: #00B7FF;
-  margin: 0 20px 20px 0;
-  display: inline-block;*/
-}
-
-main,
-.trending__tags {
+.feed,
+.profile-feed,
+.trending__tags,
+.balances,
+.create-post {
   padding: 30px 0;
   max-width: 520px;
   margin: 0 auto;
 }
 
+.wallet {
+  padding: 50px;
+  background: #f3f3f3;
+}
 .trending__tags a {
   margin: 5px;
-}
-
-.profile__aside {
-
 }
 
 .table-cell-break {
@@ -102,4 +96,24 @@ button, input[type="submit"] {
   padding: 10px;
   border: solid 1px #7b7b7b;
   margin: 20px 0 40px;
+}
+
+.profile__subnav {
+}
+.profile__subnav a {
+  margin: 10px;
+}
+.profile__header {
+  /*height: 150px;*/
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  text-align: center;
+  padding: 15px;
+}
+.profile__header img {
+  border-radius: 50%;
+  margin: 10px;
+  width: 80px;
+  height: 80px;
 }

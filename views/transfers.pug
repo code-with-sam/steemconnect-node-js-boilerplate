@@ -4,21 +4,9 @@ block content
   include partials/nav
 
   main.profile.transfers(data-username=`${username}` data-user=`${user}`)
-    h1 Wallet
-
-    button.btn.btn-primary Claim Reward Balance
-
-    h2 STEEM Balance: --
-    h2 SBD Balance: --
-    h2 STEEM POWER: --
-
-  section
-    .container
-      table.table.account-history
-        thead
-          tr
-            th
-            th
-            th
-            th
-        tbody
+    include partials/profile-nav
+    section.wallet
+    section
+      .container
+        table.table.account-history
+          tbody
