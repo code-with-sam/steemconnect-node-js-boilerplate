@@ -18,7 +18,7 @@ module.exports.isAuthenticatedJSON = (req, res, next) => {
   if (req.session.access_token)
       return next();
 
-  res.json({ error: 'Please Sign In' })
+  res.json({ error: { error_description: 'Please Sign In' }})
 }
 
 module.exports.setUser = (req, res, next) => {

@@ -467,7 +467,11 @@ $('main').on('click', '.send-comment', (e) => {
         }
       }, (response) => {
           console.log(response)
-          $(`<p>${response.msg}</p>`).insertAfter($comment)
+          if (response.error) {
+            $(`<span>${response.error.error_description}</span>`).insertAfter($comment)
+          } else {
+            $(`<p>${response.msg}</p>`).insertAfter($comment)
+          }
       })
 })
 
