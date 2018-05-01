@@ -1,6 +1,6 @@
 {
-  "name": "boilerplate",
-  "version": "0.2.0",
+  "name": "Steemconnect Boilerplate",
+  "version": "0.3.0",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"

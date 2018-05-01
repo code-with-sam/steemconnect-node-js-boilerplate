@@ -20,8 +20,11 @@ router.post('/create-post', util.isAuthenticated, (req, res) => {
     let otherTags = tags.slice(1)
     let title = req.body.title
     let body = req.body.post
-
-    steem.comment('', primaryTag, author, permlink, title, body, '', (err, steemResponse) => {
+    let customData = {
+      tags: otherTags,
+      app: 'boilerplate.app/v0.3.0'
+    }
+    steem.comment('', primaryTag, author, permlink, title, body, customData, (err, steemResponse) => {
         if (err) {
           res.render('post', {
             name: req.session.steemconnect.name,
