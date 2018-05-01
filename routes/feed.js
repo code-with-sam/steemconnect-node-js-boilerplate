@@ -2,12 +2,12 @@ let express = require('express');
 let util = require('../modules/util');
 let router = express.Router();
 
-/* GET users listing. */
-router.get('/:feed?', util.isAuthenticated, (req, res, next) => {
+router.get('/:feed/:tag?', (req, res, next) => {
     let feed = req.params.feed
-    console.log(feed)
+    let tag = req.params.tag
     res.render('feed', {
-      feed: feed
+      feed: feed,
+      tag: tag || ''
     });
 });
 

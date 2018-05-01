@@ -8,7 +8,15 @@ steem.api.getDynamicGlobalProperties((err, result) => {
   totalVestingFundSteem = result.total_vesting_fund_steem;
 })
 
-///
+
+function getTrendingTags(){
+  steem.api.getTrendingTags('', 20, (err, result) => {
+    if (err) return console.log(err);
+    displayTrendingTags(result)
+  });
+}
+
+
 function getTrending(query, initial){
   steem.api.getDiscussionsByTrending(query, (err, result) => {
     if (err === null) {
@@ -35,8 +43,7 @@ function getLatest(query, initial){
 function getMoreContent(filter, tag){
   let lastItem = allContent[allContent.length - 1]
   let query = {
-      'tag':
-      tag,
+      'tag': tag,
       'limit': 24,
       start_author: lastItem.author,
       start_permlink: lastItem.permlink }
@@ -107,6 +114,18 @@ function displayContent(result, initial){
         $('.feed-insert').append(itemTemplate)
   }
 }
+
+function displayTrendingTags(tags){
+  let feedType = $('main.feed').data('feed-type')
+
+  for (var i = 1; i < tags.length; i++) {
+    let tag = tags[i]
+    let template = `<a class="btn btn-outline-dark" href="/feed/${feedType}/${tag.name}">${tag.name}</a>`
+
+    $('.trending__tags').append(template)
+  }
+}
+
 
 function getaccounts(usernames){
   steem.api.getAccounts(usernames, (err, result) => {
@@ -354,14 +373,16 @@ function vestsToSteem(vests){
 
 if ($('main').hasClass('feed') ) {
     let feedType = $('main.feed').data('feed-type')
+    let tag = $('main.feed').data('tag') || ''
 
+    getTrendingTags()
     if(feedType === 'trending'){
-      getTrending({'limit': 20 })
+      getTrending({tag, 'limit': 20 }, true)
     } else if (feedType === 'user-feed'){
       let username = $('main').data('username')
       getUserFeed(username)
     } else {
-      getLatest({'limit': 20 })
+      getLatest({tag, 'limit': 20 }, true)
     }
 }
 

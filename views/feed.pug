@@ -3,7 +3,10 @@ extends layout
 block content
   include partials/nav
 
-  main.feed(data-feed-type=`${feed}` data-username=`${username}`)
+  aside.trending__tags
+  main.feed(data-feed-type=`${feed}` data-username=`${username}` data-tag=`${tag}`)
+    .container
+      .row: h2= feed + ' - ' + tag
     .container
       .row.feed-insert
 

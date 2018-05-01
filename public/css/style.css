@@ -11,10 +11,15 @@ a {
   display: inline-block;*/
 }
 
-main {
+main,
+.trending__tags {
   padding: 30px 0;
   max-width: 520px;
   margin: 0 auto;
+}
+
+.trending__tags a {
+  margin: 5px;
 }
 
 .profile__aside {
