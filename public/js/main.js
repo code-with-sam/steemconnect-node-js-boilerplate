@@ -220,7 +220,7 @@ function appendSinglePost(post, users){
   let tags = JSON.parse(post.json).tags.reduce( (all,tag) => all + `<span>${tag}</span>`, '')
   let header = `
     <img src="${profileImage}" class="author-img" width="35" height="35" src="">
-    <span class="overlay__author-username">@${post.author}</span>
+    <a href="/@${post.author}" class="author-username">@${post.author}</a>
     <div class="tags">${tags}</div>
     <h2 class="title">${post.title}</h2>
   `
@@ -270,8 +270,8 @@ createCommentTemplate = (post) => {
       data-post-depth="${post.depth}"
       class="comment comment-level-${post.depth} ${post.permlink}">
         <h4>
-          <a href="https://steemit.com/@${post.author}" target="_blank">@${post.author}</a>
-          <span> &middot; </span> <span> ${ post.created } </span>
+          <a href="/@${post.author}" target="_blank">@${post.author}</a>
+          <span> &middot; </span> <span> ${ moment(post.created).fromNow() } </span>
         </h4>
         <p>${ html }</p>
         <div class="meta">
