@@ -25,9 +25,9 @@ module.exports.setUser = (req, res, next) => {
   if(req.session.steemconnect){
     let metadata = {};
     if (req.session.steemconnect.json_metadata === '{}') {
-      metaData.profile = { about: '', profile_image: ''}
+      metadata.profile = { about: '', profile_image: ''}
     } else {
-      metaData = JSON.parse(req.session.steemconnect.json_metadata)
+      metadata = JSON.parse(req.session.steemconnect.json_metadata)
     }
     res.locals.user =  {
       name: req.session.steemconnect.name,
